@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">OkCupidTakeHome</string>
+    <string name="search">Search</string>
+    <string name="special_blend">SPECIAL BLEND</string>
+    <string name="match_perc">MATCH %</string>
+    <string name="location">%1$d • %2$s, %3$s</string>
+    <string name="pet_match">%1$d%% Match</string>
+    <string name="retry">Retry</string>
+</resources>
