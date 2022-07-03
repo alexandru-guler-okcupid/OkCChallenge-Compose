@@ -20,7 +20,7 @@ class MainViewModel @Inject constructor(
     private val repo: Repo
 ) : ViewModel() {
 
-    private val petJobs = mutableSetOf<PetJob>()
+    private val cancelJobsMap = mutableMapOf<String, Job>()
 
     private var petsList = listOf<PetCard>()
     private val _pets = MutableLiveData<List<PetCard>>()
@@ -88,7 +88,7 @@ class MainViewModel @Inject constructor(
                 delay(5000L)
                 _petSelected(pet)
             }
-            petJobs.add(PetJob(id = pet.userId, job = job))
+            cancelJobsMap[pet.userId] = job
         }
     }
 
@@ -101,19 +101,13 @@ class MainViewModel @Inject constructor(
             }
         }
         _pets.postValue(petsList)
-        petJobs.removeAll { it.id == pet.userId }
-        petJobs.forEach {
-            Log.d(TAG, "alex: _petSelected: id: ${it.id}, isCancelled: ${it.job.isCancelled}, isActive: ${it.job.isActive}")
-        }
         emitTopLikedPets()
     }
 
     fun onPetCancelled(pet: Pet) {
-        Log.d(TAG, "alex: onPetCancelled: cancelled pet: ${pet.userName}")
-        petJobs.find { it.id == pet.userId }?.let {
-            it.job.cancel()
-            petJobs.remove(it)
-            Log.d(TAG, "alex: onPetCancelled: ${it.id}, isCancelled: ${it.job.isCancelled}, isActive: ${it.job.isActive}")
+        cancelJobsMap[pet.userId]?.let {
+            it.cancel()
+            cancelJobsMap.remove(pet.userId)
             petsList = petsList.map { petCard ->
                 if (petCard.pet.userId == pet.userId) {
                     petCard.copy(isLoading = false)
@@ -124,11 +118,6 @@ class MainViewModel @Inject constructor(
             _pets.postValue(petsList)
         }
     }
-
-    data class PetJob(
-        val id: String,
-        val job: Job
-    )
 
     companion object {
         private const val TAG = "MainViewModel"
