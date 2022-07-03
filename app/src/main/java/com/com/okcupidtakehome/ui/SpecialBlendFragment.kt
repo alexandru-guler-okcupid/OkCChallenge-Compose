@@ -1,6 +1,5 @@
 package com.com.okcupidtakehome.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,18 +12,10 @@ import com.com.okcupidtakehome.databinding.FragmentSpecialBlendBinding
 import com.com.okcupidtakehome.models.Pet
 import com.com.okcupidtakehome.util.bindingLifecycle
 
-class SpecialBlendFragment : Fragment(), OnPetSelected {
+class SpecialBlendFragment : Fragment(), OnPetSelected, OnPetCancelled {
 
     private var viewBinding: FragmentSpecialBlendBinding by bindingLifecycle()
     private val viewModel: MainViewModel by activityViewModels()
-    private lateinit var switchTabs: SwitchTabs
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is SwitchTabs) {
-            switchTabs = context
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,7 +27,7 @@ class SpecialBlendFragment : Fragment(), OnPetSelected {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val petsAdapter = PetsAdapter(this)
+        val petsAdapter = PetsAdapter(this, this)
         viewBinding.specialBlendRecyclerView.apply {
             layoutManager = GridLayoutManager(requireContext(), 2, GridLayoutManager.VERTICAL, false)
             adapter = petsAdapter
@@ -58,7 +49,10 @@ class SpecialBlendFragment : Fragment(), OnPetSelected {
 
     override fun onPetSelected(pet: Pet) {
         viewModel.petSelected(pet)
-        switchTabs.goToTab(1)
+    }
+
+    override fun onPetCancelled(pet: Pet) {
+        viewModel.onPetCancelled(pet)
     }
 
     companion object {

@@ -4,12 +4,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.com.okcupidtakehome.databinding.ActivityMainBinding
 import com.com.okcupidtakehome.ui.PetsFragmentAdapter
-import com.com.okcupidtakehome.ui.SwitchTabs
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity(), SwitchTabs {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var viewBinding: ActivityMainBinding
 
@@ -30,12 +29,5 @@ class MainActivity : AppCompatActivity(), SwitchTabs {
                 else -> throw IllegalStateException("Unknown position for TabLayoutMediator: $position")
             }
         }.attach()
-    }
-
-    override fun goToTab(position: Int) {
-        if (position != viewBinding.tabLayout.selectedTabPosition) {
-            viewBinding.tabLayout.setScrollPosition(position, 0f, false)
-            viewBinding.pager.currentItem = position
-        }
     }
 }

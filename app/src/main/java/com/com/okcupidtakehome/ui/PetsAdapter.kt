@@ -2,6 +2,7 @@ package com.com.okcupidtakehome.ui
 
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,23 +13,29 @@ import com.com.okcupidtakehome.models.Pet
 import com.com.okcupidtakehome.util.toBinding
 
 class PetsAdapter(
-    private val onPetSelected: OnPetSelected
-) : ListAdapter<Pet, PetsAdapter.PetViewHolder>(DIFF_CALLBACK) {
+    private val onPetSelected: OnPetSelected,
+    private val onPetCancelled: OnPetCancelled?
+) : ListAdapter<PetCard, PetsAdapter.PetViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PetViewHolder =
         PetViewHolder(parent.toBinding(ItemPetBinding::inflate))
 
     override fun onBindViewHolder(holder: PetViewHolder, position: Int) {
         getItem(position)?.let {
-            holder.bind(it, onPetSelected)
+            holder.bind(it, onPetSelected, onPetCancelled)
         }
     }
 
     class PetViewHolder(
         private val viewBinding: ItemPetBinding
     ) : RecyclerView.ViewHolder(viewBinding.root) {
-        fun bind(pet: Pet, petSelected: OnPetSelected) {
+        fun bind(
+            petCard: PetCard,
+            petSelected: OnPetSelected,
+            petCancelled: OnPetCancelled?
+        ) {
             val context = viewBinding.root.context
+            val pet = petCard.pet
             val colorRes = if (pet.liked) R.color.liked else R.color.unliked
             viewBinding.petCardView.setCardBackgroundColor(
                 ContextCompat.getColor(
@@ -37,7 +44,9 @@ class PetsAdapter(
                 )
             )
             viewBinding.petCardView.setOnClickListener {
-                petSelected.onPetSelected(pet)
+                if (!petCard.isLoading) {
+                    petSelected.onPetSelected(pet)
+                }
             }
             Glide.with(context.applicationContext)
                 .load(pet.photo.original)
@@ -56,16 +65,25 @@ class PetsAdapter(
                 R.string.pet_match,
                 pet.matchPerc
             )
+            viewBinding.cancelButton.isVisible = petCard.isLoading
+            viewBinding.cancelButton.setOnClickListener {
+                petCancelled?.onPetCancelled(pet)
+            }
         }
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Pet>() {
-            override fun areItemsTheSame(oldItem: Pet, newItem: Pet): Boolean =
-                oldItem.userId == newItem.userId
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<PetCard>() {
+            override fun areItemsTheSame(oldItem: PetCard, newItem: PetCard): Boolean =
+                oldItem.pet.userId == newItem.pet.userId
 
-            override fun areContentsTheSame(oldItem: Pet, newItem: Pet): Boolean =
+            override fun areContentsTheSame(oldItem: PetCard, newItem: PetCard): Boolean =
                 oldItem == newItem
         }
     }
 }
+
+data class PetCard(
+    val pet: Pet,
+    val isLoading: Boolean
+)
