@@ -26,7 +26,7 @@ class MatchFragment : Fragment(), OnPetSelected {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val petsAdapter = PetsAdapter(this)
+        val petsAdapter = PetsAdapter(onPetSelected = this, onPetCancelled = null)
         viewBinding.matchRecyclerView.apply {
             layoutManager = GridLayoutManager(requireContext(), 2, GridLayoutManager.VERTICAL, false)
             adapter = petsAdapter

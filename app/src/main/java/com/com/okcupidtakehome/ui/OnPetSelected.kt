@@ -6,6 +6,6 @@ interface OnPetSelected {
     fun onPetSelected(pet: Pet)
 }
 
-interface SwitchTabs {
-    fun goToTab(position: Int)
+interface OnPetCancelled {
+    fun onPetCancelled(pet: Pet)
 }

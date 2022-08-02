@@ -11,6 +11,8 @@ import com.com.okcupidtakehome.repo.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -18,12 +20,14 @@ class MainViewModel @Inject constructor(
     private val repo: Repo
 ) : ViewModel() {
 
-    private var petsList = listOf<Pet>()
-    private val _pets = MutableLiveData<List<Pet>>()
-    val pets: LiveData<List<Pet>> = _pets
+    private val cancelJobsMap = mutableMapOf<String, Job>()
 
-    private val _topLikedPets = MutableLiveData<List<Pet>>()
-    val topLikedPets: LiveData<List<Pet>> = _topLikedPets
+    private var petsList = listOf<PetCard>()
+    private val _pets = MutableLiveData<List<PetCard>>()
+    val pets: LiveData<List<PetCard>> = _pets
+
+    private val _topLikedPets = MutableLiveData<List<PetCard>>()
+    val topLikedPets: LiveData<List<PetCard>> = _topLikedPets
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> = _loading
@@ -48,7 +52,7 @@ class MainViewModel @Inject constructor(
             _loading.postValue(false)
             when (result) {
                 is Result.Success<List<Pet>> -> {
-                    petsList = result.data
+                    petsList = result.data.map { PetCard(pet = it, isLoading = false) }
                     _pets.postValue(petsList)
                     emitTopLikedPets()
                 }
@@ -62,18 +66,57 @@ class MainViewModel @Inject constructor(
     private fun emitTopLikedPets() {
         _topLikedPets.postValue(
             petsList
-                .filter { it.liked }
-                .sortedByDescending { it.match }
+                .filter { it.pet.liked }
+                .sortedByDescending { it.pet.match }
                 .take(6)
         )
     }
 
     fun petSelected(pet: Pet) {
+        if (pet.liked) {
+            _petSelected(pet)
+        } else {
+            val job = viewModelScope.launch {
+                petsList = petsList.map {
+                    if (it.pet.userId == pet.userId) {
+                        it.copy(isLoading = true)
+                    } else {
+                        it
+                    }
+                }
+                _pets.postValue(petsList)
+                delay(5000L)
+                _petSelected(pet)
+            }
+            cancelJobsMap[pet.userId] = job
+        }
+    }
+
+    private fun _petSelected(pet: Pet) {
         petsList = petsList.map {
-            if (it.userId == pet.userId) pet.copy(liked = !pet.liked) else it
+            if (it.pet.userId == pet.userId) {
+                it.copy(pet = pet.copy(liked = !pet.liked), isLoading = false)
+            } else {
+                it
+            }
         }
         _pets.postValue(petsList)
         emitTopLikedPets()
+    }
+
+    fun onPetCancelled(pet: Pet) {
+        cancelJobsMap[pet.userId]?.let {
+            it.cancel()
+            cancelJobsMap.remove(pet.userId)
+            petsList = petsList.map { petCard ->
+                if (petCard.pet.userId == pet.userId) {
+                    petCard.copy(isLoading = false)
+                } else {
+                    petCard
+                }
+            }
+            _pets.postValue(petsList)
+        }
     }
 
     companion object {
