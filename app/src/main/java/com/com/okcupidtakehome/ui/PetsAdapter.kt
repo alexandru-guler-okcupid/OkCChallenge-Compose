@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.com.okcupidtakehome.R
 import com.com.okcupidtakehome.databinding.ItemPetBinding
+import com.com.okcupidtakehome.models.Location
 import com.com.okcupidtakehome.models.Pet
+import com.com.okcupidtakehome.models.Photo
 import com.com.okcupidtakehome.util.toBinding
 
 class PetsAdapter(
@@ -86,4 +88,29 @@ class PetsAdapter(
 data class PetCard(
     val pet: Pet,
     val isLoading: Boolean
+)
+
+val testPetCard = PetCard(
+    pet = Pet(
+        age = 27,
+        isOnline = 0,
+        location = Location(
+            cityName = "Brooklyn",
+            countryCode = "US",
+            countryName = "United States",
+            stateCode = "NY",
+            stateName = "New York"
+        ),
+        liked = false,
+        match = 8715,
+        photo = Photo(
+            large = "https://static.okccdn.com/interview/Animals/Large/anja.jpg",
+            medium = "https://static.okccdn.com/interview/Animals/Medium/anja.jpg",
+            original = "https://static.okccdn.com/interview/Animals/Original/anja.jpg",
+            small = "https://static.okccdn.com/interview/Animals/Small/anja.jpg"
+        ),
+        userId = "5592586755333955055",
+        userName = "anja"
+    ),
+    isLoading = true
 )
