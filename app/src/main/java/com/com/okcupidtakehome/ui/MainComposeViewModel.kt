@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.com.okcupidtakehome.models.Pet
 import com.com.okcupidtakehome.repo.Repo
 import com.com.okcupidtakehome.repo.Result
-import com.com.okcupidtakehome.ui.MatchUiState.UpdateTopPetsList
 import com.com.okcupidtakehome.ui.UiState.Loading
 import com.com.okcupidtakehome.ui.UiState.ShowError
 import com.com.okcupidtakehome.ui.UiState.UpdateList
@@ -31,9 +30,6 @@ class MainComposeViewModel @Inject constructor(
     private val _uiState = MutableLiveData<UiState>(Loading)
     val uiState: LiveData<UiState> get() = _uiState
 
-    private val _matchUiState = MutableLiveData<MatchUiState>()
-    val matchUiState: LiveData<MatchUiState> get() = _matchUiState
-
     init {
         getPets()
     }
@@ -50,8 +46,12 @@ class MainComposeViewModel @Inject constructor(
             when (result) {
                 is Result.Success<List<Pet>> -> {
                     petsList = result.data.map { PetCard(pet = it, isLoading = false) }
-                    _uiState.postValue(UpdateList(petsList))
-                    emitTopLikedPets()
+                    _uiState.postValue(
+                        UpdateList(
+                            pets = petsList,
+                            topPets = getTopLikedPets()
+                        )
+                    )
                 }
                 else -> {
                     _uiState.postValue(ShowError)
@@ -60,17 +60,11 @@ class MainComposeViewModel @Inject constructor(
         }
     }
 
-    private fun emitTopLikedPets() {
-        // Can we use the same ui state object here or do we need a seperate one?
-        _matchUiState.postValue(
-            UpdateTopPetsList(
-                petsList
-                    .filter { it.pet.liked }
-                    .sortedByDescending { it.pet.match }
-                    .take(6)
-            )
-        )
-    }
+    private fun getTopLikedPets(): List<PetCard> =
+        petsList
+            .filter { it.pet.liked }
+            .sortedByDescending { it.pet.match }
+            .take(6)
 
     fun petSelected(pet: Pet) {
         if (pet.liked) {
@@ -84,7 +78,12 @@ class MainComposeViewModel @Inject constructor(
                         it
                     }
                 }
-                _uiState.postValue(UpdateList(petsList))
+                _uiState.postValue(
+                    UpdateList(
+                        pets = petsList,
+                        topPets = getTopLikedPets()
+                    )
+                )
                 delay(5000L)
                 _petSelected(pet)
             }
@@ -100,8 +99,12 @@ class MainComposeViewModel @Inject constructor(
                 it
             }
         }
-        _uiState.postValue(UpdateList(petsList))
-        emitTopLikedPets()
+        _uiState.postValue(
+            UpdateList(
+                pets = petsList,
+                topPets = getTopLikedPets()
+            )
+        )
     }
 
     fun onPetCancelled(pet: Pet) {
@@ -115,7 +118,12 @@ class MainComposeViewModel @Inject constructor(
                     petCard
                 }
             }
-            _uiState.postValue(UpdateList(petsList))
+            _uiState.postValue(
+                UpdateList(
+                    pets = petsList,
+                    topPets = getTopLikedPets()
+                )
+            )
         }
     }
 
@@ -131,12 +139,6 @@ sealed class UiState {
 
     data class UpdateList(
         val pets: List<PetCard>,
-        // todo maybe put top liked pets here?
+        val topPets: List<PetCard>,
     ) : UiState()
-}
-
-sealed class MatchUiState {
-    data class UpdateTopPetsList(
-        val pets: List<PetCard>
-    ) : MatchUiState()
 }

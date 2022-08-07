@@ -3,18 +3,18 @@ package com.com.okcupidtakehome.ui.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import com.com.okcupidtakehome.ui.MainComposeViewModel
-import com.com.okcupidtakehome.ui.MatchUiState
+import com.com.okcupidtakehome.ui.UiState
 
 @Composable
 fun MatchScreen(viewModel: MainComposeViewModel) {
-    when (val state = viewModel.matchUiState.observeAsState().value) {
-        is MatchUiState.UpdateTopPetsList -> {
+    when (val state = viewModel.uiState.observeAsState().value) {
+        is UiState.UpdateList -> {
             PetsGrid(
-                pets = state.pets,
+                pets = state.topPets,
                 onPetSelected = viewModel::petSelected,
                 onPetCancelled = {}
             )
         }
-        null -> Unit
+        else -> Unit // Match Screen only needs the "topPets" list
     }
 }
