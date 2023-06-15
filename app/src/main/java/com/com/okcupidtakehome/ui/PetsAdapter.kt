@@ -86,8 +86,8 @@ class PetsAdapter(
 }
 
 data class PetCard(
-    val pet: Pet,
-    val isLoading: Boolean
+    var pet: Pet,
+    var isLoading: Boolean
 )
 
 val testPetCard = PetCard(

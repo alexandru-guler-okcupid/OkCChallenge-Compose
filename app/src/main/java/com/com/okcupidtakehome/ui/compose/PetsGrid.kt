@@ -25,7 +25,10 @@ fun PetsGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier.padding(bottom = 10.dp)
     ) {
-        items(pets) { pet ->
+        items(
+            items = pets,
+//            key = { it.pet.userId }
+        ) { pet ->
             PetItem(
                 petCard = pet,
                 onPetSelected = onPetSelected,

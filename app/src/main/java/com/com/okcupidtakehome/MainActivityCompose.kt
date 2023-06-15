@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -45,48 +46,52 @@ class MainActivityCompose : AppCompatActivity() {
 
     private val viewModel: MainComposeViewModel by viewModels()
 
-    @OptIn(ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             OkCupidTakeHomeTheme {
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    val topBarElevation = 5.dp
-                    val pages = listOf(
-                        getString(R.string.special_blend),
-                        getString(R.string.match_perc)
-                    )
-                    val pagerState = rememberPagerState()
-                    TopTabBar(
-                        title = getString(R.string.search),
-                        elevation = topBarElevation,
-                        pages = pages,
-                        pagerState = pagerState,
-                        coroutineScope = rememberCoroutineScope(),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
+                OkCupidChallenge(viewModel)
+            }
+        }
+    }
+}
 
-                    HorizontalPager(
-                        count = pages.size,
-                        state = pagerState,
-                        verticalAlignment = Alignment.Top,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(BackgroundColor),
-                    ) { page ->
-                        when (page) {
-                            0 -> SpecialBlendScreen(
-                                viewModel = viewModel
-                            )
-                            1 -> MatchScreen(
-                                viewModel = viewModel
-                            )
-                        }
-                    }
-                }
+@Composable
+private fun OkCupidChallenge(viewModel: MainComposeViewModel) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        val topBarElevation = 5.dp
+        val pages = listOf(
+            stringResource(R.string.special_blend),
+            stringResource(R.string.match_perc)
+        )
+        val pagerState = rememberPagerState()
+        TopTabBar(
+            title = stringResource(R.string.search),
+            elevation = topBarElevation,
+            pages = pages,
+            pagerState = pagerState,
+            coroutineScope = rememberCoroutineScope(),
+            modifier = Modifier
+                .fillMaxWidth()
+        )
+
+        HorizontalPager(
+            count = pages.size,
+            state = pagerState,
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BackgroundColor),
+        ) { page ->
+            when (page) {
+                0 -> SpecialBlendScreen(
+                    viewModel = viewModel
+                )
+                1 -> MatchScreen(
+                    viewModel = viewModel
+                )
             }
         }
     }
@@ -94,7 +99,7 @@ class MainActivityCompose : AppCompatActivity() {
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TopTabBar(
+private fun TopTabBar(
     title: String,
     elevation: Dp,
     pages: List<String>,

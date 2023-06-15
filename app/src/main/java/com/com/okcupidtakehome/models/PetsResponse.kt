@@ -4,50 +4,50 @@ import com.google.gson.annotations.SerializedName
 
 data class PetsResponse(
     @SerializedName("data")
-    val data: List<Pet>
+    var data: List<Pet>
 )
 
 data class Pet(
     @SerializedName("age")
-    val age: Int,
+    var age: Int,
     @SerializedName("is_online")
-    val isOnline: Int,
+    var isOnline: Int,
     @SerializedName("location")
-    val location: Location,
+    var location: Location,
     @SerializedName("liked")
-    val liked: Boolean,
+    var liked: Boolean,
     @SerializedName("match")
-    val match: Int,
+    var match: Int,
     @SerializedName("photo")
-    val photo: Photo,
+    var photo: Photo,
     @SerializedName("userid")
-    val userId: String,
+    var userId: String,
     @SerializedName("username")
-    val userName: String,
+    var userName: String,
 ) {
     val matchPerc: Int get() = (match / 100f).toInt()
 }
 
 data class Location(
     @SerializedName("city_name")
-    val cityName: String,
+    var cityName: String,
     @SerializedName("country_code")
-    val countryCode: String,
+    var countryCode: String,
     @SerializedName("country_name")
-    val countryName: String,
+    var countryName: String,
     @SerializedName("state_code")
-    val stateCode: String,
+    var stateCode: String,
     @SerializedName("state_name")
-    val stateName: String,
+    var stateName: String,
 )
 
 data class Photo(
     @SerializedName("large")
-    val large: String,
+    var large: String,
     @SerializedName("medium")
-    val medium: String,
+    var medium: String,
     @SerializedName("original")
-    val original: String,
+    var original: String,
     @SerializedName("small")
-    val small: String,
+    var small: String,
 )
