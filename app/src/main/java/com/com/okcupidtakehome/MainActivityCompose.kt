@@ -1,15 +1,19 @@
 package com.com.okcupidtakehome
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -17,9 +21,15 @@ import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -30,8 +40,12 @@ import com.com.okcupidtakehome.theme.OkCupidTakeHomeTheme
 import com.com.okcupidtakehome.theme.Teal700
 import com.com.okcupidtakehome.theme.White
 import com.com.okcupidtakehome.ui.MainComposeViewModel
+import com.com.okcupidtakehome.ui.compose.DraggableList
+import com.com.okcupidtakehome.ui.compose.Gesture
 import com.com.okcupidtakehome.ui.compose.MatchScreen
+import com.com.okcupidtakehome.ui.compose.ReorderItem
 import com.com.okcupidtakehome.ui.compose.SpecialBlendScreen
+import com.com.okcupidtakehome.ui.compose.move
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -44,13 +58,43 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class MainActivityCompose : AppCompatActivity() {
 
+    private val TAG = "MainActivityCompose"
     private val viewModel: MainComposeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val ogList = ReorderItem.getList()
         setContent {
             OkCupidTakeHomeTheme {
-                OkCupidChallenge(viewModel)
+                var list by remember { mutableStateOf(ogList) }
+
+//                Gesture()
+                Box(modifier = Modifier.fillMaxSize()) {
+                    DraggableList(
+                        list = list,
+                        onMove = { from, to ->
+                            Log.d(TAG, "alex: onMove: from: $from to: $to")
+                            val mutableList = list.toMutableList()
+                            mutableList.move(from, to)
+                            list = mutableList
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Gray)
+                    )
+
+                    Button(
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                        onClick = {
+                            list = list.shuffled()
+                        }
+                    ) {
+                        Text(
+                            text = "SHUFFLE",
+                            color = Color.Black
+                        )
+                    }
+                }
             }
         }
     }
