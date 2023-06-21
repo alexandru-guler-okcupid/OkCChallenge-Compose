@@ -1,6 +1,6 @@
 package com.com.okcupidtakehome.ui.compose
 
-import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -24,12 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.util.UUID
 import kotlinx.coroutines.Job
@@ -44,7 +42,6 @@ fun DraggableList(
     onMove: (Int, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val scope = rememberCoroutineScope()
 
     var overscrollJob by remember { mutableStateOf<Job?>(null) }
@@ -71,10 +68,12 @@ fun DraggableList(
                             return@detectDragGesturesAfterLongPress
                         }
 
-                        dragDropListState.checkForOverScroll()
+                        dragDropListState
+                            .checkForOverScroll()
                             .takeIf { it != 0f }
                             ?.let {
-                                overscrollJob = scope.launch { dragDropListState.lazyGridState.scrollBy(it) }
+                                overscrollJob =
+                                    scope.launch { dragDropListState.lazyGridState.scrollBy(it) }
                             }
                             ?: run { overscrollJob?.cancel() }
                     },
@@ -92,16 +91,30 @@ fun DraggableList(
     ) {
         itemsIndexed(
             items = list,
-            key = { index, item -> item.id  }
+            key = { _, item -> item.id  }
         ) {index, item ->
+
+            var selected by remember { mutableStateOf(false) }
+            val animScale = animateFloatAsState(if (selected) 1.2f else 1f)
+            val animAlpha = animateFloatAsState(if (selected) 0.85f else 0.0f)
+
             Box(
                 modifier = Modifier
-                    .animateItemPlacement()
+//                    .animateItemPlacement() // TODO: this looks funny
                     .graphicsLayer {
                         val offsetOrNull = dragDropListState.elementDisplacement.takeIf {
                             index == dragDropListState.currentIndexOfDraggedItem
                         }
-                        translationY = offsetOrNull ?: 0f
+
+                        selected = offsetOrNull != null
+                        if (offsetOrNull != null) {
+                            // TODO: add scale up animation
+                            scaleX = animScale.value
+                            scaleY = animScale.value
+                            alpha = animAlpha.value
+                        }
+                        translationX = offsetOrNull?.x?.toFloat() ?: 0f
+                        translationY = offsetOrNull?.y?.toFloat() ?: 0f
                     }
                     .fillMaxSize()
                     .aspectRatio(1f)
