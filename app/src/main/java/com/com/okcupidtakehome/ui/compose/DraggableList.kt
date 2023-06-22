@@ -20,9 +20,6 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,10 +45,8 @@ fun DraggableList(
     Box(modifier = Modifier.fillMaxSize()) {
         val dragDropListState = rememberDragDropListState(onMove = onMove)
 
-        var selected by remember { mutableStateOf(false) }
-
-        val animScale by animateFloatAsState(if (selected) scaleSelected else 1f)
-        val alphaScale by animateFloatAsState(if (selected) alphaSelected else 1f)
+        val animScale by animateFloatAsState(if (dragDropListState.currentElement != null) scaleSelected else 1f)
+        val alphaScale by animateFloatAsState(if (dragDropListState.currentElement != null) alphaSelected else 1f)
 
         val allAroundPadding = 6.dp
         LazyVerticalGrid(
@@ -74,11 +69,9 @@ fun DraggableList(
                             dragDropListState.onDragStart(offset)
                         },
                         onDragEnd = {
-                            selected = false
                             dragDropListState.onDragInterrupted()
                         },
                         onDragCancel = {
-                            selected = false
                             dragDropListState.onDragInterrupted()
                         }
                     )
@@ -94,9 +87,6 @@ fun DraggableList(
                         .graphicsLayer {
                             val offsetOrNull = dragDropListState.elementDisplacement.takeIf {
                                 index == dragDropListState.currentIndexOfDraggedItem
-                            }
-                            if (offsetOrNull != null) {
-                                selected = true
                             }
                             alpha = if (offsetOrNull != null) 0.0f else 1.0f
                             translationX = offsetOrNull?.x?.toFloat() ?: 0f
@@ -143,10 +133,11 @@ fun DraggableList(
                         width = width,
                         height = height
                     )
-                    .background(Color.Red)
+                    .background(Color.White)
             ) {
+                val item = list[currentElement.index]
                 Text(
-                    text = "MY OWN",
+                    text = "Item ${item.title}",
                     color = Color.Black,
                     modifier = Modifier
                         .align(Alignment.Center)
