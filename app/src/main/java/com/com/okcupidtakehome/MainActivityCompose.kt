@@ -2,7 +2,6 @@ package com.com.okcupidtakehome
 
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -29,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -41,11 +39,9 @@ import com.com.okcupidtakehome.theme.Teal700
 import com.com.okcupidtakehome.theme.White
 import com.com.okcupidtakehome.ui.MainComposeViewModel
 import com.com.okcupidtakehome.ui.compose.DraggableList
-import com.com.okcupidtakehome.ui.compose.Gesture
 import com.com.okcupidtakehome.ui.compose.MatchScreen
 import com.com.okcupidtakehome.ui.compose.ReorderItem
 import com.com.okcupidtakehome.ui.compose.SpecialBlendScreen
-import com.com.okcupidtakehome.ui.compose.move
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -67,8 +63,6 @@ class MainActivityCompose : AppCompatActivity() {
         setContent {
             OkCupidTakeHomeTheme {
                 var list by remember { mutableStateOf(ogList) }
-
-//                Gesture()
                 Box(modifier = Modifier.fillMaxSize()) {
                     DraggableList(
                         list = list,
@@ -197,4 +191,12 @@ private fun TopTabBar(
             }
         }
     }
+}
+
+fun <T> MutableList<T>.move(from: Int, to: Int) {
+    if (from == to)
+        return
+
+    val element = this.removeAt(from) ?: return
+    this.add(to, element)
 }
