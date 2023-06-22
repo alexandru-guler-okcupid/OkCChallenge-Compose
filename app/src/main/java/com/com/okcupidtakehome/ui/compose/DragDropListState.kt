@@ -56,7 +56,7 @@ class DragDropListState(
          * Find what item we're dragging by seeing if the current [Offset] x and y values are inside of
          * the item's bounds -> x..(x + item.width) and y..(y + item.height)
          */
-        Log.d(TAG, "alex: onDragStart: offset: $offset")
+//        Log.d(TAG, "alex: onDragStart: offset: $offset")
         lazyGridState.layoutInfo.visibleItemsInfo
             .firstOrNull { item ->
                 val dragOffset = offset.round()
@@ -90,7 +90,7 @@ class DragDropListState(
         positionalDraggedDistance += offset.round()
         currentElement?.let { hovered ->
             val actualOffset = hovered.offset + positionalDraggedDistance
-            Log.d(TAG, "alex: onDrag currentElement: offset: ${hovered.offset} , index: ${hovered.index} , offset.round(): ${offset.round()} , draggedDistance: $draggedDistance , positionalDraggedDistance: $positionalDraggedDistance, actualOffset: $actualOffset")
+//            Log.d(TAG, "alex: onDrag currentElement: offset: ${hovered.offset} , index: ${hovered.index} , offset.round(): ${offset.round()} , draggedDistance: $draggedDistance , positionalDraggedDistance: $positionalDraggedDistance, actualOffset: $actualOffset")
 
             val moveTriggerTargetIntSize = hovered.size.let {
                 IntSize(
@@ -107,7 +107,7 @@ class DragDropListState(
                 y = actualOffset.y + distanceY
             )
 
-            Log.d(TAG, "alex: onDrag: targetMoveTriggerOffset: $targetMoveTriggerOffset")
+//            Log.d(TAG, "alex: onDrag: targetMoveTriggerOffset: $targetMoveTriggerOffset")
 
             lazyGridState.layoutInfo.visibleItemsInfo
                 .firstOrNull { item ->
@@ -118,10 +118,10 @@ class DragDropListState(
                                     (targetMoveTriggerOffset.y + moveTriggerTargetIntSize.height) in item.offset.y..(item.offset.y + item.size.height))
                 }
                 ?.let {
-                    Log.d(TAG, "alex: hovering OVER: ${it.index} currently moving ${currentElement?.index}")
+//                    Log.d(TAG, "alex: hovering OVER: ${it.index} currently moving ${currentElement?.index}")
                     // TODO: this is not working idk why -- see if this if statement helps
                     if (hovered.index != it.index) {
-                        Log.d(TAG, "alex: onDrag: moving from : ${hovered.index} to: ${it.index}")
+//                        Log.d(TAG, "alex: onDrag: moving from : ${hovered.index} to: ${it.index}")
                         onMove.invoke(hovered.index, it.index)
                         currentIndexOfDraggedItem = it.index
                         // old offset + distance - new offset

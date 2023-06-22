@@ -67,7 +67,7 @@ class MainActivityCompose : AppCompatActivity() {
                     DraggableList(
                         list = list,
                         onMove = { from, to ->
-                            Log.d(TAG, "alex: onMove: from: $from to: $to")
+//                            Log.d(TAG, "alex: onMove: from: $from to: $to")
                             val mutableList = list.toMutableList()
                             mutableList.move(from, to)
                             list = mutableList

@@ -1,7 +1,6 @@
 package com.com.okcupidtakehome.ui.compose
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -23,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,9 +50,8 @@ fun DraggableList(
 
         var selected by remember { mutableStateOf(false) }
 
-        // TODO: scale up animation still a WIP
-        val animScale = animateFloatAsState(if (selected) scaleSelected else 1f)
-        val alphaScale = animateFloatAsState(if (selected) alphaSelected else 1f)
+        val animScale by animateFloatAsState(if (selected) scaleSelected else 1f)
+        val alphaScale by animateFloatAsState(if (selected) alphaSelected else 1f)
 
         val allAroundPadding = 6.dp
         LazyVerticalGrid(
@@ -77,9 +74,11 @@ fun DraggableList(
                             dragDropListState.onDragStart(offset)
                         },
                         onDragEnd = {
+                            selected = false
                             dragDropListState.onDragInterrupted()
                         },
                         onDragCancel = {
+                            selected = false
                             dragDropListState.onDragInterrupted()
                         }
                     )
@@ -89,14 +88,6 @@ fun DraggableList(
                 items = list,
                 key = { _, item -> item.id }
             ) { index, item ->
-                /**
-                 *
-                 * Disregard this for now. Try just making item tapped to alpha 0.0 then adding your own box and moving that one.
-                 * animate offset as state.
-                 *
-                 * 1. Need to figure out how we can detect when list changes
-                 * 2. On changes detected, figure out where things are moved then use [animateIntOffsetAsState] on those indexes?
-                 */
                 Box(
                     modifier = Modifier
                         .animateItemPlacement()
@@ -104,8 +95,9 @@ fun DraggableList(
                             val offsetOrNull = dragDropListState.elementDisplacement.takeIf {
                                 index == dragDropListState.currentIndexOfDraggedItem
                             }
-
-                            selected = offsetOrNull != null
+                            if (offsetOrNull != null) {
+                                selected = true
+                            }
                             alpha = if (offsetOrNull != null) 0.0f else 1.0f
                             translationX = offsetOrNull?.x?.toFloat() ?: 0f
                             translationY = offsetOrNull?.y?.toFloat() ?: 0f
@@ -132,7 +124,6 @@ fun DraggableList(
             Box(
                 modifier = Modifier
                     .offset {
-                        // TODO: need to add the lazy lists padding to the start (left) and top of this offset.
                         currentElement.offset + with(localDensity) {
                             IntOffset(
                                 x = allAroundPadding.roundToPx(),
@@ -142,15 +133,9 @@ fun DraggableList(
                     }
                     .graphicsLayer {
                         val offsetOrNull = dragDropListState.elementDisplacement
-
-//                        scaleX = animScale.value
-//                        scaleY = animScale.value
-//                        alpha = alphaScale.value
-
-                        scaleX = scaleSelected
-                        scaleY = scaleSelected
-                        alpha = alphaSelected
-
+                        scaleX = animScale
+                        scaleY = animScale
+                        alpha = alphaScale
                         translationX = offsetOrNull?.x?.toFloat() ?: 0f
                         translationY = offsetOrNull?.y?.toFloat() ?: 0f
                     }
