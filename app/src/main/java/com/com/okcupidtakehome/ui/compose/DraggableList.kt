@@ -65,15 +65,9 @@ fun DraggableList(
                             change.consume()
                             dragDropListState.onDrag(offset)
                         },
-                        onDragStart = { offset ->
-                            dragDropListState.onDragStart(offset)
-                        },
-                        onDragEnd = {
-                            dragDropListState.onDragInterrupted()
-                        },
-                        onDragCancel = {
-                            dragDropListState.onDragInterrupted()
-                        }
+                        onDragStart = dragDropListState::onDragStart,
+                        onDragEnd = dragDropListState::onDragInterrupted,
+                        onDragCancel = dragDropListState::onDragInterrupted
                     )
                 }
         ) {
