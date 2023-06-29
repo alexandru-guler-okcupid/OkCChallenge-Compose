@@ -1,7 +1,6 @@
 package com.com.okcupidtakehome
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -20,11 +19,9 @@ import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +35,7 @@ import com.com.okcupidtakehome.theme.OkCupidTakeHomeTheme
 import com.com.okcupidtakehome.theme.Teal700
 import com.com.okcupidtakehome.theme.White
 import com.com.okcupidtakehome.ui.MainComposeViewModel
+import com.com.okcupidtakehome.ui.compose.DragDropViewModel
 import com.com.okcupidtakehome.ui.compose.DraggableList
 import com.com.okcupidtakehome.ui.compose.MatchScreen
 import com.com.okcupidtakehome.ui.compose.ReorderItem
@@ -56,38 +54,24 @@ class MainActivityCompose : AppCompatActivity() {
 
     private val TAG = "MainActivityCompose"
     private val viewModel: MainComposeViewModel by viewModels()
+    private val dragDropViewModel: DragDropViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val ogList = ReorderItem.getList()
         setContent {
             OkCupidTakeHomeTheme {
-                var list by remember { mutableStateOf(ogList) }
+                val state by dragDropViewModel.state.collectAsState()
                 Box(modifier = Modifier.fillMaxSize()) {
                     DraggableList(
-                        list = list,
-                        onMove = { from, to ->
-//                            Log.d(TAG, "alex: onMove: from: $from to: $to")
-                            val mutableList = list.toMutableList()
-                            mutableList.move(from, to)
-                            list = mutableList
-                        },
+                        state = state,
+                        onMove = dragDropViewModel::onMove,
+                        canBeMoved = dragDropViewModel::canBeMoved,
+                        onAdd = dragDropViewModel::onAdd,
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color.Gray)
                     )
-
-                    Button(
-                        modifier = Modifier.align(Alignment.BottomCenter),
-                        onClick = {
-                            list = list.shuffled()
-                        }
-                    ) {
-                        Text(
-                            text = "SHUFFLE",
-                            color = Color.Black
-                        )
-                    }
                 }
             }
         }
@@ -191,12 +175,4 @@ private fun TopTabBar(
             }
         }
     }
-}
-
-fun <T> MutableList<T>.move(from: Int, to: Int) {
-    if (from == to)
-        return
-
-    val element = this.removeAt(from) ?: return
-    this.add(to, element)
 }

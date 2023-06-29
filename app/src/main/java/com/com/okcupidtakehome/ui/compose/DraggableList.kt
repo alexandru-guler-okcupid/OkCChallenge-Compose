@@ -3,6 +3,7 @@ package com.com.okcupidtakehome.ui.compose
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,29 +29,38 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import java.util.UUID
+import androidx.compose.ui.unit.sp
 
 private const val TAG = "DraggableList"
 
 private const val scaleSelected = 1.2f
 private const val alphaSelected = 0.85f
 
+/**
+ * TODO: need a comment talking about moving around the "fake" item in order to hide the weird [animateItemPlacement]
+ *  animate while dragging
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DraggableList(
-    list: List<ReorderItem>,
+    state: DragDropState,
     onMove: (Int, Int) -> Unit,
+    canBeMoved: (index: Int) -> Boolean,
+    onAdd: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        val dragDropListState = rememberDragDropListState(onMove = onMove)
+        val dragDropGridListState = rememberDragDropGridListState(
+            onMove = onMove,
+            canBeMoved = canBeMoved
+        )
 
-        val animScale by animateFloatAsState(if (dragDropListState.currentElement != null) scaleSelected else 1f)
-        val alphaScale by animateFloatAsState(if (dragDropListState.currentElement != null) alphaSelected else 1f)
+        val animScale by animateFloatAsState(if (dragDropGridListState.currentElement != null) scaleSelected else 1f)
+        val alphaScale by animateFloatAsState(if (dragDropGridListState.currentElement != null) alphaSelected else 1f)
 
         val allAroundPadding = 6.dp
         LazyVerticalGrid(
-            state = dragDropListState.lazyGridState,
+            state = dragDropGridListState.lazyGridState,
             columns = GridCells.Fixed(3),
             contentPadding = PaddingValues(vertical = allAroundPadding),
             verticalArrangement = Arrangement.spacedBy(allAroundPadding),
@@ -63,31 +73,81 @@ fun DraggableList(
                     detectDragGesturesAfterLongPress(
                         onDrag = { change, offset ->
                             change.consume()
-                            dragDropListState.onDrag(offset)
+                            dragDropGridListState.onDrag(offset)
                         },
-                        onDragStart = dragDropListState::onDragStart,
-                        onDragEnd = dragDropListState::onDragInterrupted,
-                        onDragCancel = dragDropListState::onDragInterrupted
+                        onDragStart = dragDropGridListState::onDragStart,
+                        onDragEnd = dragDropGridListState::onDragInterrupted,
+                        onDragCancel = dragDropGridListState::onDragInterrupted
                     )
                 }
         ) {
             itemsIndexed(
-                items = list,
+                items = state.list,
                 key = { _, item -> item.id }
             ) { index, item ->
+                when (item) {
+                    is ReorderItem.Photo -> Box(
+                        modifier = Modifier
+                            .animateItemPlacement()
+                            .graphicsLayer {
+                                val offsetOrNull =
+                                    dragDropGridListState.positionalDraggedDistance.takeIf {
+                                        index == dragDropGridListState.currentIndexOfDraggedItem
+                                    }
+                                alpha = if (offsetOrNull != null) 0.0f else 1.0f
+                                translationX = offsetOrNull?.x?.toFloat() ?: 0f
+                                translationY = offsetOrNull?.y?.toFloat() ?: 0f
+                            }
+                            .fillMaxSize()
+                            .aspectRatio(1f)
+                            .background(Color.White)
+                    ) {
+                        Text(
+                            text = "Item ${item.title}",
+                            color = Color.Black,
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                        )
+                    }
+                    ReorderItem.Add -> AddButton(
+                        onClick = onAdd,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .aspectRatio(1f)
+                    )
+                }
+            }
+        }
+        val currentElement = dragDropGridListState.currentElement
+        if (currentElement != null) {
+            val item = state.list[currentElement.index] as? ReorderItem.Photo
+            if (item != null) {
+                val localDensity = LocalDensity.current
+                val (width, height) = with(localDensity) {
+                    currentElement.size.width.toDp() to currentElement.size.height.toDp()
+                }
                 Box(
                     modifier = Modifier
-                        .animateItemPlacement()
-                        .graphicsLayer {
-                            val offsetOrNull = dragDropListState.elementDisplacement.takeIf {
-                                index == dragDropListState.currentIndexOfDraggedItem
+                        .offset {
+                            currentElement.offset + with(localDensity) {
+                                IntOffset(
+                                    x = allAroundPadding.roundToPx(),
+                                    y = allAroundPadding.roundToPx()
+                                )
                             }
-                            alpha = if (offsetOrNull != null) 0.0f else 1.0f
-                            translationX = offsetOrNull?.x?.toFloat() ?: 0f
-                            translationY = offsetOrNull?.y?.toFloat() ?: 0f
                         }
-                        .fillMaxSize()
-                        .aspectRatio(1f)
+                        .graphicsLayer {
+                            val offsetOrNull = dragDropGridListState.positionalDraggedDistance
+                            scaleX = animScale
+                            scaleY = animScale
+                            alpha = alphaScale
+                            translationX = offsetOrNull.x.toFloat()
+                            translationY = offsetOrNull.y.toFloat()
+                        }
+                        .size(
+                            width = width,
+                            height = height
+                        )
                         .background(Color.White)
                 ) {
                     Text(
@@ -99,59 +159,25 @@ fun DraggableList(
                 }
             }
         }
-        val currentElement = dragDropListState.currentElement
-        if (currentElement != null) {
-            val localDensity = LocalDensity.current
-            val (width, height) = with(localDensity) {
-                currentElement.size.width.toDp() to currentElement.size.height.toDp()
-            }
-            Box(
-                modifier = Modifier
-                    .offset {
-                        currentElement.offset + with(localDensity) {
-                            IntOffset(
-                                x = allAroundPadding.roundToPx(),
-                                y = allAroundPadding.roundToPx()
-                            )
-                        }
-                    }
-                    .graphicsLayer {
-                        val offsetOrNull = dragDropListState.elementDisplacement
-                        scaleX = animScale
-                        scaleY = animScale
-                        alpha = alphaScale
-                        translationX = offsetOrNull?.x?.toFloat() ?: 0f
-                        translationY = offsetOrNull?.y?.toFloat() ?: 0f
-                    }
-                    .size(
-                        width = width,
-                        height = height
-                    )
-                    .background(Color.White)
-            ) {
-                val item = list[currentElement.index]
-                Text(
-                    text = "Item ${item.title}",
-                    color = Color.Black,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                )
-            }
-        }
     }
 }
 
-data class ReorderItem(
-    val id: String = UUID.randomUUID().toString(),
-    val title: String
+@Composable
+private fun AddButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
 ) {
-    companion object {
-        fun getList(): List<ReorderItem> {
-            return (1..10).map {
-                ReorderItem(
-                    title = it.toString()
-                )
-            }
-        }
+    Box(
+        modifier = modifier
+            .background(Color.LightGray)
+            .clickable(onClick = onClick)
+    ) {
+        Text(
+            text = "+",
+            color = Color.Black,
+            fontSize = 36.sp,
+            modifier = Modifier
+                .align(Alignment.Center)
+        )
     }
 }

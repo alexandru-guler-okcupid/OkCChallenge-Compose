@@ -16,19 +16,25 @@ import androidx.compose.ui.unit.round
 private const val TAG = "DragDropListState"
 
 @Composable
-fun rememberDragDropListState(
+fun rememberDragDropGridListState(
     lazyGridState: LazyGridState = rememberLazyGridState(),
     onMove: (Int, Int) -> Unit,
-): DragDropListState {
-    return remember { DragDropListState(lazyGridState = lazyGridState, onMove = onMove) }
+    canBeMoved: (index: Int) -> Boolean
+): DragDropGridListState {
+    return remember {
+        DragDropGridListState(
+            lazyGridState = lazyGridState,
+            onMove = onMove,
+            canBeMoved = canBeMoved
+        )
+    }
 }
 
-class DragDropListState(
+class DragDropGridListState(
     val lazyGridState: LazyGridState,
-    private val onMove: (Int, Int) -> Unit
+    private val onMove: (Int, Int) -> Unit,
+    private val canBeMoved: (index: Int) -> Boolean
 ) {
-    private var draggedDistance by mutableStateOf(IntOffset.Zero)
-
     /**
      * This variable keeps track of the distance moved by the dragged item relative to their placement.
      * Meaning, when we move an item from an index to another we have to recompute its dragged distance:
@@ -47,18 +53,14 @@ class DragDropListState(
      * Or in the above example
      * (0, 100) + (0, -30) - (0, 0) = (0, 70)
      */
-    private var positionalDraggedDistance = IntOffset.Zero
+    var positionalDraggedDistance = IntOffset.Zero
+        private set
 
     // used to obtain initial offsets on drag start
     private var initiallyDraggedElement by mutableStateOf<LazyGridItemInfo?>(null)
 
     var currentIndexOfDraggedItem by mutableStateOf<Int?>(null)
         private set
-
-    val elementDisplacement: IntOffset?
-        get() = currentIndexOfDraggedItem
-            ?.let { lazyGridState.getVisibleItemInfoFor(absoluteIndex = it) }
-            ?.let { item -> (initiallyDraggedElement?.offset ?: IntOffset.Zero) + draggedDistance - item.offset }
 
     val currentElement: LazyGridItemInfo?
         get() = currentIndexOfDraggedItem?.let {
@@ -77,13 +79,16 @@ class DragDropListState(
                         && dragOffset.y in item.offset.y..(item.offset.y + item.size.height)
             }
             ?.also {
-                currentIndexOfDraggedItem = it.index
-                initiallyDraggedElement = it
+                if (canBeMoved.invoke(it.index)) {
+                    currentIndexOfDraggedItem = it.index
+                    initiallyDraggedElement = it
+                } else {
+                    onDragInterrupted()
+                }
             }
     }
 
     fun onDragInterrupted() {
-        draggedDistance = IntOffset.Zero
         positionalDraggedDistance = IntOffset.Zero
         currentIndexOfDraggedItem = null
         initiallyDraggedElement = null
@@ -116,7 +121,6 @@ class DragDropListState(
      * this variable's declaration that explains the math behind it.
      */
     fun onDrag(offset: Offset) {
-        draggedDistance += offset.round()
         positionalDraggedDistance += offset.round()
         currentElement?.let { hovered ->
             val actualOffset = hovered.offset + positionalDraggedDistance
@@ -143,7 +147,7 @@ class DragDropListState(
                                     (moveTriggerTargetOffset.y + moveTriggerTargetSize.height) in item.offset.y..(item.offset.y + item.size.height))
                 }
                 ?.let {
-                    if (hovered.index != it.index) {
+                    if (hovered.index != it.index && canBeMoved.invoke(it.index)) {
                         onMove.invoke(hovered.index, it.index)
                         currentIndexOfDraggedItem = it.index
                         // old offset + distance dragged - new offset = New distance dragged
