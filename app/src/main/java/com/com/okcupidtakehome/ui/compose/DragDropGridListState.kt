@@ -56,9 +56,6 @@ class DragDropGridListState(
     var positionalDraggedDistance = IntOffset.Zero
         private set
 
-    // used to obtain initial offsets on drag start
-    private var initiallyDraggedElement by mutableStateOf<LazyGridItemInfo?>(null)
-
     var currentIndexOfDraggedItem by mutableStateOf<Int?>(null)
         private set
 
@@ -81,7 +78,6 @@ class DragDropGridListState(
             ?.also {
                 if (canBeMoved.invoke(it.index)) {
                     currentIndexOfDraggedItem = it.index
-                    initiallyDraggedElement = it
                 } else {
                     onDragInterrupted()
                 }
@@ -91,7 +87,6 @@ class DragDropGridListState(
     fun onDragInterrupted() {
         positionalDraggedDistance = IntOffset.Zero
         currentIndexOfDraggedItem = null
-        initiallyDraggedElement = null
     }
 
     /**
