@@ -43,7 +43,7 @@ class DragDropViewModel @Inject constructor() : ViewModel() {
             mutableList.add(
                 it.list.size - 1,
                 ReorderItem.Photo(
-                    title = "${it.list.size + 1}"
+                    title = "${it.list.filterIsInstance<ReorderItem.Photo>().size + 1}"
                 )
             )
             it.copy(
