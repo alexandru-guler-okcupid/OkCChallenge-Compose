@@ -5,7 +5,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,12 +17,9 @@ import androidx.compose.material.TabRowDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -35,9 +31,8 @@ import com.com.okcupidtakehome.theme.Teal700
 import com.com.okcupidtakehome.theme.White
 import com.com.okcupidtakehome.ui.MainComposeViewModel
 import com.com.okcupidtakehome.ui.compose.DragDropViewModel
-import com.com.okcupidtakehome.ui.compose.DraggableList
 import com.com.okcupidtakehome.ui.compose.MatchScreen
-import com.com.okcupidtakehome.ui.compose.ReorderItem
+import com.com.okcupidtakehome.ui.compose.MiscTestingGround
 import com.com.okcupidtakehome.ui.compose.SpecialBlendScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -57,21 +52,11 @@ class MainActivityCompose : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val ogList = ReorderItem.getList()
+
         setContent {
             OkCupidTakeHomeTheme {
-                val state by dragDropViewModel.state.collectAsState()
-                Box(modifier = Modifier.fillMaxSize()) {
-                    DraggableList(
-                        state = state,
-                        onMove = dragDropViewModel::onMove,
-                        canBeMoved = dragDropViewModel::canBeMoved,
-                        onAdd = dragDropViewModel::onAdd,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Gray)
-                    )
-                }
+//                val state by dragDropViewModel.state.collectAsState()
+                MiscTestingGround()
             }
         }
     }
