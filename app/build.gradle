@@ -39,7 +39,7 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.3'
+        kotlinCompilerExtensionVersion '1.5.3'
     }
     namespace 'com.com.okcupidtakehome'
 }
@@ -111,6 +111,9 @@ dependencies {
     // Braze
     implementation "com.braze:android-sdk-ui:29.0.1"
     implementation "com.braze:android-sdk-location:29.0.1"
+
+    // For QR Code
+    implementation "com.google.zxing:core:3.5.2"
 
     // Test
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
