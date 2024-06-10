@@ -5,6 +5,7 @@ plugins {
     id 'kotlin-parcelize'
     id 'dagger.hilt.android.plugin'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 android {
@@ -38,16 +39,16 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.5.3'
-    }
+//    composeOptions {
+//        kotlinCompilerExtensionVersion '2.0.0'
+//    }
     namespace 'com.com.okcupidtakehome'
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.10.0'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
 
     implementation "com.squareup.okhttp3:okhttp:4.12.0"
@@ -56,20 +57,20 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
-    implementation 'com.google.android.datatransport:transport-runtime:3.2.0'
-    implementation 'androidx.viewpager2:viewpager2:1.0.0'
+    implementation 'com.google.android.datatransport:transport-runtime:3.3.0'
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
 
     // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    implementation "com.squareup.retrofit2:retrofit:2.11.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.11.0"
 
     // Hilt
-    implementation 'com.google.dagger:hilt-android:2.48.1'
-    kapt 'com.google.dagger:hilt-compiler:2.48.1'
+    implementation 'com.google.dagger:hilt-android:2.51.1'
+    kapt 'com.google.dagger:hilt-compiler:2.51.1'
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.16.0'
@@ -80,40 +81,40 @@ dependencies {
     // Tooling support (Previews, etc.)
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
     // Foundation (Border, Background, Box, Image, Scroll, shapes, animations, etc.)
-    implementation "androidx.compose.foundation:foundation:1.5.4"
+    implementation "androidx.compose.foundation:foundation:1.6.7"
     // Constraint Layout
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
     // Material Design
     implementation "androidx.compose.material:material:$compose_version"
     // material3
-    implementation "androidx.compose.material3:material3:1.1.2"
-    implementation "androidx.compose.material3:material3-window-size-class:1.1.2"
+    implementation "androidx.compose.material3:material3:1.2.1"
+    implementation "androidx.compose.material3:material3-window-size-class:1.2.1"
     // Material design icons
     implementation "androidx.compose.material:material-icons-core:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     // Integration with activities
-    implementation "androidx.activity:activity-compose:1.8.0"
+    implementation "androidx.activity:activity-compose:1.9.0"
     // Integration with ViewModels
-    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1"
     // Integration with observables
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     // Pager
-    implementation "com.google.accompanist:accompanist-pager:0.32.0"
+    implementation "com.google.accompanist:accompanist-pager:0.34.0"
     // If using indicators, also depend on
-    implementation "com.google.accompanist:accompanist-pager-indicators:0.32.0"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.34.0"
     // Coil
     implementation "io.coil-kt:coil-compose:2.2.2"
 
 
     // UI Tests
-    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.5.4'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.6.7'
 
     // Braze
-    implementation "com.braze:android-sdk-ui:29.0.1"
-    implementation "com.braze:android-sdk-location:29.0.1"
+    implementation "com.braze:android-sdk-ui:31.1.0"
+    implementation "com.braze:android-sdk-location:31.1.0"
 
     // For QR Code
-    implementation "com.google.zxing:core:3.5.2"
+    implementation "com.google.zxing:core:3.5.3"
 
     // Test
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
